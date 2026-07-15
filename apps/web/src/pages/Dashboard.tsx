@@ -6,7 +6,7 @@ import RecommendationCard from "../components/RecommendationCard";
 import ProgressChart from "../components/ProgressChart";
 import DigitalBrain from "../components/DigitalBrain";
 import SubjectInfo from "../components/SubjectInfo";
-
+import AIInsight from "../components/AIInsight";
 
 function Dashboard(){
 
@@ -67,6 +67,11 @@ onSelect={setSelectedSubject}
 
 
 <SubjectInfo
+
+subject={selectedSubject}
+
+/>
+<AIInsight
 
 subject={selectedSubject}
 

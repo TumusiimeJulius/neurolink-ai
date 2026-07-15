@@ -1,5 +1,5 @@
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, Float } from "@react-three/drei";
+import { OrbitControls, Float, Line } from "@react-three/drei";
 import { learningProfile } from "../utils/learningData";
 
 
@@ -119,11 +119,58 @@ emissiveIntensity={2}
 
 
 
+function NeuralConnection({
+
+start,
+
+end
+
+}:{
+
+start:[number,number,number],
+
+end:[number,number,number]
+
+}){
+
+
+return (
+
+<Line
+
+points={[start,end]}
+
+lineWidth={2}
+
+color="#818cf8"
+
+/>
+
+)
+
+}
+
+
+
+
+
 function DigitalBrain({
 
 onSelect
 
 }:DigitalBrainProps){
+
+
+
+const nodePositions = [
+
+[-2,1,0],
+
+[0,2,0],
+
+[2,1,0]
+
+] as [number,number,number][];
 
 
 
@@ -153,10 +200,39 @@ intensity={3}
 
 
 
+
 <BrainCore/>
 
 
 
+
+
+{/* Neural Connections */}
+
+{
+
+nodePositions.map((position,index)=>(
+
+
+<NeuralConnection
+
+key={index}
+
+start={[0,0,0]}
+
+end={position}
+
+/>
+
+
+))
+
+}
+
+
+
+
+{/* Learning Nodes */}
 
 {
 
@@ -170,15 +246,7 @@ key={subject.name}
 
 
 
-position={[
-
-(index - 1) * 2,
-
-1,
-
-0
-
-]}
+position={nodePositions[index]}
 
 
 
