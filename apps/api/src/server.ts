@@ -9,27 +9,30 @@ import { authenticateToken } from "./middleware/authMiddleware";
 
 dotenv.config();
 
-
 const app = express();
-
 
 app.use(cors());
 
 app.use(express.json());
+
+
 app.use(
   "/api/auth",
   authRoutes
 );
+
 app.use(
   "/api/predictions",
   authenticateToken,
   predictionRoutes
 );
+
 app.use(
   "/api/profile",
   authenticateToken,
   profileRoutes
 );
+
 app.use(
   "/api/recommendations",
   authenticateToken,
@@ -37,29 +40,24 @@ app.use(
 );
 
 
-app.get("/",(req,res)=>{
+app.get("/", (req, res) => {
 
+  res.json({
 
-res.json({
+    message: "NeuroLink AI API running 🚀"
 
-message:"NeuroLink AI API running 🚀"
-
-});
-
+  });
 
 });
 
 
-
-const PORT = 5000;
-
-
-app.listen(PORT,()=>{
+const PORT = process.env.PORT || 5000;
 
 
-console.log(
-`Server running on port ${PORT}`
-);
+app.listen(PORT, () => {
 
+  console.log(
+    `Server running on port ${PORT}`
+  );
 
 });
