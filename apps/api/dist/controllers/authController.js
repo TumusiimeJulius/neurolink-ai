@@ -25,11 +25,31 @@ async function register(req, res) {
         }
         const hashedPassword = await bcrypt_1.default.hash(password, 10);
         const defaultProfiles = [
-            { subject: "Programming", mastery: 92, recommendation: "Great progress! Try advanced algorithms next." },
-            { subject: "Mathematics", mastery: 74, recommendation: "Focus on calculus fundamentals for better foundation." },
-            { subject: "Physics", mastery: 61, recommendation: "Practice mechanics problems to improve understanding." },
-            { subject: "Design Systems", mastery: 88, recommendation: "Ready to explore component patterns and best practices." },
-            { subject: "Writing", mastery: 69, recommendation: "Work on clarity and structure in technical writing." },
+            {
+                subject: "Programming",
+                mastery: 92,
+                recommendation: "Great progress! Try advanced algorithms next."
+            },
+            {
+                subject: "Mathematics",
+                mastery: 74,
+                recommendation: "Focus on calculus fundamentals for better foundation."
+            },
+            {
+                subject: "Physics",
+                mastery: 61,
+                recommendation: "Practice mechanics problems to improve understanding."
+            },
+            {
+                subject: "Design Systems",
+                mastery: 88,
+                recommendation: "Ready to explore component patterns and best practices."
+            },
+            {
+                subject: "Writing",
+                mastery: 69,
+                recommendation: "Work on clarity and structure in technical writing."
+            }
         ];
         const student = await prisma_1.default.student.create({
             data: {
@@ -49,14 +69,14 @@ async function register(req, res) {
             student: {
                 id: student.id,
                 name: student.name,
-                email: student.email
-            }
+                email: student.email,
+            },
         });
     }
     catch (error) {
         res.status(500).json({
             message: "Registration failed",
-            error
+            error,
         });
     }
 }
@@ -82,9 +102,9 @@ async function login(req, res) {
         }
         const token = jsonwebtoken_1.default.sign({
             id: student.id,
-            email: student.email
+            email: student.email,
         }, JWT_SECRET, {
-            expiresIn: "7d"
+            expiresIn: "7d",
         });
         res.json({
             message: "Login successful",
@@ -92,16 +112,14 @@ async function login(req, res) {
             student: {
                 id: student.id,
                 name: student.name,
-                email: student.email
-            }
+                email: student.email,
+            },
         });
     }
-    finally {
+    catch (error) {
+        res.status(500).json({
+            message: "Login failed",
+            error,
+        });
     }
-}
-try { }
-catch (error) {
-    res.status(500).json({
-        message: "Login failed.",
-    });
 }
