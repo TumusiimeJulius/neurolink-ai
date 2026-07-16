@@ -56,7 +56,12 @@ export async function createLearningProfile(
 
   try {
 
-    const studentId = req.user?.id;
+    if (!req.user) {
+      return res.status(401).json({
+        message: "Unauthorized"
+      });
+    }
+
 
     const {
       subject,
@@ -72,7 +77,12 @@ export async function createLearningProfile(
         subject,
         mastery,
         recommendation,
-        studentId
+
+        student: {
+          connect: {
+            id: req.user.id
+          }
+        }
 
       }
 
@@ -87,89 +97,6 @@ export async function createLearningProfile(
     res.status(500).json({
 
       message:"Failed to create learning profile"
-
-    });
-
-  }
-
-}
-
-
-
-// UPDATE LEARNING PROFILE
-
-export async function updateLearningProfile(
-  req: AuthRequest,
-  res: Response
-){
-
-  try {
-
-    const id = Number(req.params.id);
-
-
-    const updatedProfile =
-      await prisma.learningProfile.update({
-
-        where:{
-          id
-        },
-
-        data:req.body
-
-      });
-
-
-    res.json(updatedProfile);
-
-
-  } catch(error){
-
-    res.status(500).json({
-
-      message:"Failed to update learning profile"
-
-    });
-
-  }
-
-}
-
-
-
-// DELETE LEARNING PROFILE
-
-export async function deleteLearningProfile(
-  req: AuthRequest,
-  res: Response
-){
-
-  try {
-
-    const id = Number(req.params.id);
-
-
-    await prisma.learningProfile.delete({
-
-      where:{
-        id
-      }
-
-    });
-
-
-    res.json({
-
-      message:"Learning profile deleted"
-
-    });
-
-
-  } catch(error){
-
-    res.status(500).json({
-
-      message:"Failed to delete learning profile"
 
     });
 
