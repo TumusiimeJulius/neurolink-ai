@@ -2,6 +2,9 @@ import { Response } from "express";
 import { AuthRequest } from "../types/auth";
 import prisma from "../config/prisma";
 
+
+// GET STUDENT PROFILE
+
 export async function getProfile(
   req: AuthRequest,
   res: Response
@@ -11,7 +14,9 @@ export async function getProfile(
     const userId = req.user?.id;
 
     if (userId !== requestedId) {
-      return res.status(403).json({ message: "Access denied." });
+      return res.status(403).json({
+        message: "Access denied."
+      });
     }
 
     const student = await prisma.student.findUnique({
@@ -23,34 +28,151 @@ export async function getProfile(
       },
     });
 
+    if (!student) {
+      return res.status(404).json({
+        message: "Student not found"
+      });
+    }
+
+    res.json(student);
+
+  } catch (error) {
+
+    res.status(500).json({
+      message: "Failed to load profile"
+    });
+
+  }
+}
 
 
-if(!student){
 
-return res.status(404).json({
+// CREATE LEARNING PROFILE
 
-message:"Student not found"
+export async function createLearningProfile(
+  req: AuthRequest,
+  res: Response
+) {
 
-});
+  try {
+
+    const studentId = req.user?.id;
+
+    const {
+      subject,
+      mastery,
+      recommendation
+    } = req.body;
+
+
+    const profile = await prisma.learningProfile.create({
+
+      data: {
+
+        subject,
+        mastery,
+        recommendation,
+        studentId
+
+      }
+
+    });
+
+
+    res.status(201).json(profile);
+
+
+  } catch(error){
+
+    res.status(500).json({
+
+      message:"Failed to create learning profile"
+
+    });
+
+  }
 
 }
 
 
 
-res.json(student);
+// UPDATE LEARNING PROFILE
 
+export async function updateLearningProfile(
+  req: AuthRequest,
+  res: Response
+){
+
+  try {
+
+    const id = Number(req.params.id);
+
+
+    const updatedProfile =
+      await prisma.learningProfile.update({
+
+        where:{
+          id
+        },
+
+        data:req.body
+
+      });
+
+
+    res.json(updatedProfile);
+
+
+  } catch(error){
+
+    res.status(500).json({
+
+      message:"Failed to update learning profile"
+
+    });
+
+  }
 
 }
 
-catch(error){
 
-res.status(500).json({
 
-message:"Failed to load profile"
+// DELETE LEARNING PROFILE
 
-});
+export async function deleteLearningProfile(
+  req: AuthRequest,
+  res: Response
+){
 
-}
+  try {
 
+    const id = Number(req.params.id);
+
+
+    await prisma.learningProfile.delete({
+
+      where:{
+        id
+      }
+
+    });
+
+
+    res.json({
+
+      message:"Learning profile deleted"
+
+    });
+
+
+  } catch(error){
+
+    res.status(500).json({
+
+      message:"Failed to delete learning profile"
+
+    });
+
+  }
 
 }
