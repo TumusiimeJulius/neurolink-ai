@@ -49,35 +49,32 @@ message:"Email already registered"
 
 
 
-const hashedPassword = await bcrypt.hash(
+const hashedPassword = await bcrypt.hash(password, 10);
 
-password,
-
-10
-
-);
-
-
+const defaultProfiles = [
+  { subject: "Programming", mastery: 92, recommendation: "Great progress! Try advanced algorithms next." },
+  { subject: "Mathematics", mastery: 74, recommendation: "Focus on calculus fundamentals for better foundation." },
+  { subject: "Physics", mastery: 61, recommendation: "Practice mechanics problems to improve understanding." },
+  { subject: "Design Systems", mastery: 88, recommendation: "Ready to explore component patterns and best practices." },
+  { subject: "Writing", mastery: 69, recommendation: "Work on clarity and structure in technical writing." },
+];
 
 const student = await prisma.student.create({
-
-data:{
-
-name,
-
-email,
-
-password:hashedPassword
-
-}
-
+  data: {
+    name,
+    email,
+    password: hashedPassword,
+    learningProfiles: {
+      create: defaultProfiles,
+    },
+  },
+  include: {
+    learningProfiles: true,
+  },
 });
 
-
-
 res.status(201).json({
-
-message:"Student created successfully",
+  message: "Student created successfully",
 
 student:{
 
@@ -227,19 +224,9 @@ email:student.email
 }
 
 
-catch(error){
-
-
-res.status(500).json({
-
-message:"Login failed",
-
-error
-
-});
-
-
-}
-
-
+  } catch (error) {
+    res.status(500).json({
+      message: "Login failed.",
+    });
+  }
 }

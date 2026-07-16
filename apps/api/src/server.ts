@@ -3,6 +3,10 @@ import cors from "cors";
 import dotenv from "dotenv";
 import authRoutes from "./routes/authRoutes";
 import profileRoutes from "./routes/profileRoutes";
+import recommendationRoutes from "./routes/recommendationRoutes";
+import predictionRoutes from "./routes/predictionRoutes";
+import { authenticateToken } from "./middleware/authMiddleware";
+
 dotenv.config();
 
 
@@ -13,12 +17,23 @@ app.use(cors());
 
 app.use(express.json());
 app.use(
-"/api/auth",
-authRoutes
+  "/api/auth",
+  authRoutes
 );
 app.use(
-"/api/profile",
-profileRoutes
+  "/api/predictions",
+  authenticateToken,
+  predictionRoutes
+);
+app.use(
+  "/api/profile",
+  authenticateToken,
+  profileRoutes
+);
+app.use(
+  "/api/recommendations",
+  authenticateToken,
+  recommendationRoutes
 );
 
 

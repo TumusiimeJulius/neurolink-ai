@@ -1,0 +1,102 @@
+import { useEffect, useState } from "react";
+import { Sparkles } from "lucide-react";
+
+import Sidebar from "../components/Sidebar";
+import LearningTwinCard from "../components/LearningTwinCard";
+import RecommendationCard from "../components/RecommendationCard";
+import ProgressChart from "../components/ProgressChart";
+import DigitalBrain from "../components/DigitalBrain";
+import SubjectInfo from "../components/SubjectInfo";
+import AIInsight from "../components/AIInsight";
+import { useStudent } from "../context/StudentContext";
+import { getStudentProfile } from "../services/profile";
+import { getRecommendations } from "../services/recommendation";
+
+const RecommendationCardTyped = RecommendationCard as any;
+
+function Dashboard() {
+  const { student } = useStudent();
+  const [selectedSubject, setSelectedSubject] = useState<any>(null);
+  const [profile, setProfile] = useState<any>(null);
+  const [recommendations, setRecommendations] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadDashboard() {
+      if (!student) {
+        return;
+      }
+
+      setIsLoading(true);
+      try {
+        const [profileData, recommendationData] = await Promise.all([
+          getStudentProfile(student.id),
+          getRecommendations(student.id),
+        ]);
+
+        setProfile(profileData);
+        setRecommendations(recommendationData?.recommendations || []);
+        setSelectedSubject(profileData?.learningProfiles?.[0] || null);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadDashboard();
+  }, [student]);
+
+  return (
+    <div className="flex min-h-screen bg-slate-50">
+      <Sidebar />
+
+      <main className="flex-1 p-6 sm:p-10">
+        <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-indigo-500">Dashboard</p>
+              <h1 className="mt-2 text-3xl font-semibold text-slate-900">Welcome back, {student?.name || "student"}</h1>
+              <p className="mt-2 text-slate-500">Your learning twin is tracking your rhythm and surfacing the next best step.</p>
+            </div>
+            <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-4 py-2 text-sm font-semibold text-indigo-600">
+              <Sparkles size={16} />
+              Adaptive focus mode
+            </div>
+          </div>
+
+          <div className="mt-8 rounded-[1.75rem] border border-slate-200 bg-slate-950/95 p-4 sm:p-6">
+            <div className="mb-4 flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-semibold text-white">Your digital learning twin</h2>
+                <p className="mt-1 text-sm text-slate-400">Select a node to inspect a subject and unlock its next step.</p>
+              </div>
+              {isLoading ? <div className="rounded-full bg-white/10 px-3 py-2 text-sm text-slate-300">Loading profile…</div> : null}
+            </div>
+
+            {profile ? (
+              <DigitalBrain subjects={profile.learningProfiles} onSelect={setSelectedSubject} />
+            ) : (
+              <div className="flex h-[420px] items-center justify-center rounded-[1.25rem] border border-white/10 bg-white/5 text-slate-300">
+                {isLoading ? "Building your twin profile..." : "No profile data available yet."}
+              </div>
+            )}
+          </div>
+
+          <div className="mt-6 grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
+            <SubjectInfo subject={selectedSubject} />
+            <AIInsight subject={selectedSubject} recommendations={recommendations} />
+          </div>
+        </div>
+
+        <div className="mt-8 grid gap-6 lg:grid-cols-2 xl:grid-cols-3">
+          <LearningTwinCard />
+          <RecommendationCardTyped recommendations={recommendations} />
+          <ProgressChart />
+        </div>
+      </main>
+    </div>
+  );
+}
+
+export default Dashboard;

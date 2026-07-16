@@ -1,288 +1,36 @@
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, Float, Line } from "@react-three/drei";
-import { learningProfile } from "../utils/learningData";
-
+import { OrbitControls } from "@react-three/drei";
 
 interface DigitalBrainProps {
-
-onSelect: (subject:any)=>void;
-
+  onSelect: (subject: any) => void;
+  subjects: any[];
+  selectedSubject?: any;
 }
 
-
-
-function BrainCore(){
-
-return (
-
-<Float
-
-speed={2}
-
-rotationIntensity={1}
-
-floatIntensity={2}
-
->
-
-<mesh>
-
-<sphereGeometry
-args={[1.5,32,32]}
-/>
-
-
-<meshStandardMaterial
-
-color="#6366f1"
-
-emissive="#4338ca"
-
-emissiveIntensity={0.8}
-
-/>
-
-
-</mesh>
-
-
-</Float>
-
-)
-
+function BasePlatform() {
+  return (
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.55, 0]}>
+      <cylinderGeometry args={[2.8, 2.8, 0.26, 64]} />
+      <meshStandardMaterial color="#020617" emissive="#03050d" roughness={0.6} metalness={0.4} />
+    </mesh>
+  );
 }
 
+function DigitalBrain({ subjects, selectedSubject }: DigitalBrainProps) {
+  return (
+    <div className="mx-auto h-[360px] w-full max-w-[720px] overflow-hidden rounded-[1.25rem] border border-slate-700/70 bg-slate-950/95 shadow-inner shadow-black/30 sm:h-[420px]">
+      <Canvas camera={{ position: [0, 0, 8], fov: 46 }}>
+        <color attach="background" args={["#020617"]} />
+        <ambientLight intensity={0.85} />
+        <pointLight position={[5, 5, 5]} intensity={3} />
+        <pointLight position={[-4, -3, 2]} intensity={2} color="#60a5fa" />
 
+        <BasePlatform />
 
-
-
-function LearningNode({
-
-position,
-
-color,
-
-size,
-
-onClick
-
-
-}:{
-
-position:[number,number,number],
-
-color:string,
-
-size:number,
-
-onClick:()=>void
-
-}){
-
-
-return (
-
-<mesh
-
-position={position}
-
-onClick={onClick}
-
->
-
-
-<sphereGeometry
-
-args={[size,20,20]}
-
-/>
-
-
-<meshStandardMaterial
-
-color={color}
-
-emissive={color}
-
-emissiveIntensity={2}
-
-/>
-
-
-</mesh>
-
-)
-
+        <OrbitControls enablePan={false} enableZoom={true} autoRotate autoRotateSpeed={0.55} />
+      </Canvas>
+    </div>
+  );
 }
-
-
-
-
-
-function NeuralConnection({
-
-start,
-
-end
-
-}:{
-
-start:[number,number,number],
-
-end:[number,number,number]
-
-}){
-
-
-return (
-
-<Line
-
-points={[start,end]}
-
-lineWidth={2}
-
-color="#818cf8"
-
-/>
-
-)
-
-}
-
-
-
-
-
-function DigitalBrain({
-
-onSelect
-
-}:DigitalBrainProps){
-
-
-
-const nodePositions = [
-
-[-2,1,0],
-
-[0,2,0],
-
-[2,1,0]
-
-] as [number,number,number][];
-
-
-
-return (
-
-<div className="h-[500px] w-full">
-
-
-<Canvas>
-
-
-<ambientLight
-
-intensity={1}
-
-/>
-
-
-
-<pointLight
-
-position={[5,5,5]}
-
-intensity={3}
-
-/>
-
-
-
-
-<BrainCore/>
-
-
-
-
-
-{/* Neural Connections */}
-
-{
-
-nodePositions.map((position,index)=>(
-
-
-<NeuralConnection
-
-key={index}
-
-start={[0,0,0]}
-
-end={position}
-
-/>
-
-
-))
-
-}
-
-
-
-
-{/* Learning Nodes */}
-
-{
-
-learningProfile.subjects.map((subject,index)=>(
-
-
-<LearningNode
-
-
-key={subject.name}
-
-
-
-position={nodePositions[index]}
-
-
-
-color={subject.color}
-
-
-
-size={subject.mastery / 150}
-
-
-
-onClick={()=>onSelect(subject)}
-
-
-/>
-
-
-))
-
-}
-
-
-
-
-<OrbitControls />
-
-
-</Canvas>
-
-
-</div>
-
-)
-
-}
-
-
 
 export default DigitalBrain;

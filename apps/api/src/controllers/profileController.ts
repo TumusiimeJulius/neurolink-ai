@@ -1,35 +1,27 @@
-import { Request, Response } from "express";
+import { Response } from "express";
+import { AuthRequest } from "../types/auth";
 import prisma from "../config/prisma";
 
-
 export async function getProfile(
+  req: AuthRequest,
+  res: Response
+) {
+  try {
+    const requestedId = Number(req.params.id);
+    const userId = req.user?.id;
 
-req:Request,
+    if (userId !== requestedId) {
+      return res.status(403).json({ message: "Access denied." });
+    }
 
-res:Response
-
-){
-
-try{
-
-
-const studentId = Number(req.params.id);
-
-
-
-const student = await prisma.student.findUnique({
-
-where:{
-id:studentId
-},
-
-include:{
-
-learningProfiles:true
-
-}
-
-});
+    const student = await prisma.student.findUnique({
+      where: {
+        id: requestedId,
+      },
+      include: {
+        learningProfiles: true,
+      },
+    });
 
 
 

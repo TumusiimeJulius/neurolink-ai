@@ -1,0 +1,32 @@
+export function analyzeLearning(subject: any): LearningInsight {
+  let status = "";
+  let recommendation = "";
+  let focusTip = "";
+  let challenge = "";
+
+  if (subject.mastery >= 80) {
+    status = "Strong 🟢";
+    recommendation = "Move to advanced concepts and challenging projects.";
+    focusTip = "Take on one harder problem and explain your reasoning out loud.";
+    challenge = "Try a timed challenge set to push your current level.";
+  } else if (subject.mastery >= 50) {
+    status = "Improving 🟡";
+    recommendation = "Practice more examples and revise difficult topics.";
+    focusTip = "Split your session into short practice rounds and a quick recap.";
+    challenge = "Solve two medium-level questions and note where you feel stuck.";
+  } else {
+    status = "Needs Attention 🔴";
+    recommendation = "Review the fundamentals and practice regularly.";
+    focusTip = "Return to the basics with one concept summary and a few simple examples.";
+    challenge = "Complete a short review quiz before moving on.";
+  }
+
+  return {
+    subject: subject.name,
+    mastery: subject.mastery,
+    status,
+    recommendation,
+    focusTip,
+    challenge,
+  };
+}
