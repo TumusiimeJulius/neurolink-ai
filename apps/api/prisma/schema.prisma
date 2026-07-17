@@ -7,20 +7,20 @@ datasource db {
 }
 
 model Student {
-  id Int @id @default(autoincrement())
-  name String
-  email String @unique
-  password String
+  id                Int               @id @default(autoincrement())
+  name              String
+  email             String            @unique
+  password          String
 
-  learningProfiles LearningProfile[]
+  learningProfiles  LearningProfile[]
 }
 
 model LearningProfile {
-  id Int @id @default(autoincrement())
-  subject String
-  mastery Int
+  id             Int     @id @default(autoincrement())
+  subject        String
+  mastery        Int
   recommendation String
 
-  studentId Int
-  student Student @relation(fields: [studentId], references: [id])
+  studentId      Int
+  student         Student @relation(fields: [studentId], references: [id])
 }

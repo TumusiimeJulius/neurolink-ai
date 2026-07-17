@@ -42,14 +42,22 @@ async function getProfile(req, res) {
 // CREATE LEARNING PROFILE
 async function createLearningProfile(req, res) {
     try {
-        const studentId = req.user?.id;
+        if (!req.user) {
+            return res.status(401).json({
+                message: "Unauthorized"
+            });
+        }
         const { subject, mastery, recommendation } = req.body;
         const profile = await prisma_1.default.learningProfile.create({
             data: {
                 subject,
                 mastery,
                 recommendation,
-                studentId
+                student: {
+                    connect: {
+                        id: req.user.id
+                    }
+                }
             }
         });
         res.status(201).json(profile);
@@ -88,7 +96,7 @@ async function deleteLearningProfile(req, res) {
             }
         });
         res.json({
-            message: "Learning profile deleted"
+            message: "Learning profile deleted successfully"
         });
     }
     catch (error) {
