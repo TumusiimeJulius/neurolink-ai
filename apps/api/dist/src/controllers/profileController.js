@@ -13,9 +13,14 @@ async function getProfile(req, res) {
     try {
         const requestedId = Number(req.params.id);
         const userId = req.user?.id;
+        if (!userId) {
+            return res.status(401).json({
+                message: "Unauthorized",
+            });
+        }
         if (userId !== requestedId) {
             return res.status(403).json({
-                message: "Access denied."
+                message: "Access denied.",
             });
         }
         const student = await prisma_1.default.student.findUnique({
@@ -28,80 +33,153 @@ async function getProfile(req, res) {
         });
         if (!student) {
             return res.status(404).json({
-                message: "Student not found"
+                message: "Student not found",
             });
         }
-        res.json(student);
+        return res.json(student);
     }
     catch (error) {
-        res.status(500).json({
-            message: "Failed to load profile"
+        console.error("Get profile error:", error);
+        return res.status(500).json({
+            message: "Failed to load profile",
         });
     }
 }
 // CREATE LEARNING PROFILE
 async function createLearningProfile(req, res) {
     try {
-        if (!req.user) {
+        const studentId = Number(req.params.id);
+        const userId = req.user?.id;
+        if (!userId) {
             return res.status(401).json({
-                message: "Unauthorized"
+                message: "Unauthorized",
             });
         }
-        const { subject, mastery, recommendation } = req.body;
+        if (userId !== studentId) {
+            return res.status(403).json({
+                message: "Access denied.",
+            });
+        }
+        const { subject, mastery, recommendation, } = req.body;
+        if (!subject || mastery === undefined || !recommendation) {
+            return res.status(400).json({
+                message: "Subject, mastery, and recommendation are required.",
+            });
+        }
         const profile = await prisma_1.default.learningProfile.create({
             data: {
                 subject,
-                mastery,
+                mastery: Number(mastery),
                 recommendation,
                 student: {
                     connect: {
-                        id: req.user.id
-                    }
-                }
-            }
+                        id: studentId,
+                    },
+                },
+            },
         });
-        res.status(201).json(profile);
+        return res.status(201).json(profile);
     }
     catch (error) {
-        res.status(500).json({
-            message: "Failed to create learning profile"
+        console.error("Create learning profile error:", error);
+        return res.status(500).json({
+            message: "Failed to create learning profile",
         });
     }
 }
 // UPDATE LEARNING PROFILE
 async function updateLearningProfile(req, res) {
     try {
-        const id = Number(req.params.id);
+        const studentId = Number(req.params.id);
+        const profileId = Number(req.params.profileId);
+        const userId = req.user?.id;
+        if (!userId) {
+            return res.status(401).json({
+                message: "Unauthorized",
+            });
+        }
+        if (userId !== studentId) {
+            return res.status(403).json({
+                message: "Access denied.",
+            });
+        }
+        const existingProfile = await prisma_1.default.learningProfile.findFirst({
+            where: {
+                id: profileId,
+                studentId: studentId,
+            },
+        });
+        if (!existingProfile) {
+            return res.status(404).json({
+                message: "Learning profile not found",
+            });
+        }
+        const { subject, mastery, recommendation, } = req.body;
         const updatedProfile = await prisma_1.default.learningProfile.update({
             where: {
-                id
+                id: profileId,
             },
-            data: req.body
+            data: {
+                ...(subject !== undefined && {
+                    subject,
+                }),
+                ...(mastery !== undefined && {
+                    mastery: Number(mastery),
+                }),
+                ...(recommendation !== undefined && {
+                    recommendation,
+                }),
+            },
         });
-        res.json(updatedProfile);
+        return res.json(updatedProfile);
     }
     catch (error) {
-        res.status(500).json({
-            message: "Failed to update learning profile"
+        console.error("Update learning profile error:", error);
+        return res.status(500).json({
+            message: "Failed to update learning profile",
         });
     }
 }
 // DELETE LEARNING PROFILE
 async function deleteLearningProfile(req, res) {
     try {
-        const id = Number(req.params.id);
+        const studentId = Number(req.params.id);
+        const profileId = Number(req.params.profileId);
+        const userId = req.user?.id;
+        if (!userId) {
+            return res.status(401).json({
+                message: "Unauthorized",
+            });
+        }
+        if (userId !== studentId) {
+            return res.status(403).json({
+                message: "Access denied.",
+            });
+        }
+        const existingProfile = await prisma_1.default.learningProfile.findFirst({
+            where: {
+                id: profileId,
+                studentId: studentId,
+            },
+        });
+        if (!existingProfile) {
+            return res.status(404).json({
+                message: "Learning profile not found",
+            });
+        }
         await prisma_1.default.learningProfile.delete({
             where: {
-                id
-            }
+                id: profileId,
+            },
         });
-        res.json({
-            message: "Learning profile deleted successfully"
+        return res.json({
+            message: "Learning profile deleted successfully",
         });
     }
     catch (error) {
-        res.status(500).json({
-            message: "Failed to delete learning profile"
+        console.error("Delete learning profile error:", error);
+        return res.status(500).json({
+            message: "Failed to delete learning profile",
         });
     }
 }
