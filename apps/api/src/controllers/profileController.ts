@@ -8,16 +8,15 @@ export async function getProfile(
   res: Response
 ) {
   try {
-    const requestedId = Number(req.params.id);
-    const userId = req.user?.id;
-
-    if (!userId) {
+    if (!req.user) {
       return res.status(401).json({
         message: "Unauthorized",
       });
     }
 
-    if (userId !== requestedId) {
+    const requestedId = Number(req.params.id);
+
+    if (req.user.id !== requestedId) {
       return res.status(403).json({
         message: "Access denied.",
       });
@@ -48,23 +47,21 @@ export async function getProfile(
   }
 }
 
-
 // CREATE LEARNING PROFILE
 export async function createLearningProfile(
   req: AuthRequest,
   res: Response
 ) {
   try {
-    const requestedId = Number(req.params.id);
-    const userId = req.user?.id;
-
-    if (!userId) {
+    if (!req.user) {
       return res.status(401).json({
         message: "Unauthorized",
       });
     }
 
-    if (userId !== requestedId) {
+    const studentId = Number(req.params.id);
+
+    if (req.user.id !== studentId) {
       return res.status(403).json({
         message: "Access denied.",
       });
@@ -78,7 +75,8 @@ export async function createLearningProfile(
 
     if (!subject || mastery === undefined || !recommendation) {
       return res.status(400).json({
-        message: "Subject, mastery, and recommendation are required.",
+        message:
+          "Subject, mastery, and recommendation are required.",
       });
     }
 
@@ -89,7 +87,7 @@ export async function createLearningProfile(
         recommendation,
         student: {
           connect: {
-            id: userId,
+            id: studentId,
           },
         },
       },
@@ -105,35 +103,34 @@ export async function createLearningProfile(
   }
 }
 
-
 // UPDATE LEARNING PROFILE
 export async function updateLearningProfile(
   req: AuthRequest,
   res: Response
 ) {
   try {
-    const requestedId = Number(req.params.id);
-    const profileId = Number(req.params.profileId);
-    const userId = req.user?.id;
-
-    if (!userId) {
+    if (!req.user) {
       return res.status(401).json({
         message: "Unauthorized",
       });
     }
 
-    if (userId !== requestedId) {
+    const studentId = Number(req.params.id);
+    const profileId = Number(req.params.profileId);
+
+    if (req.user.id !== studentId) {
       return res.status(403).json({
         message: "Access denied.",
       });
     }
 
-    const existingProfile = await prisma.learningProfile.findFirst({
-      where: {
-        id: profileId,
-        studentId: userId,
-      },
-    });
+    const existingProfile =
+      await prisma.learningProfile.findFirst({
+        where: {
+          id: profileId,
+          studentId: studentId,
+        },
+      });
 
     if (!existingProfile) {
       return res.status(404).json({
@@ -147,22 +144,23 @@ export async function updateLearningProfile(
       recommendation,
     } = req.body;
 
-    const profile = await prisma.learningProfile.update({
-      where: {
-        id: profileId,
-      },
-      data: {
-        ...(subject !== undefined && {
-          subject,
-        }),
-        ...(mastery !== undefined && {
-          mastery: Number(mastery),
-        }),
-        ...(recommendation !== undefined && {
-          recommendation,
-        }),
-      },
-    });
+    const profile =
+      await prisma.learningProfile.update({
+        where: {
+          id: profileId,
+        },
+        data: {
+          ...(subject !== undefined && {
+            subject,
+          }),
+          ...(mastery !== undefined && {
+            mastery: Number(mastery),
+          }),
+          ...(recommendation !== undefined && {
+            recommendation,
+          }),
+        },
+      });
 
     return res.json(profile);
   } catch (error) {
@@ -174,35 +172,34 @@ export async function updateLearningProfile(
   }
 }
 
-
 // DELETE LEARNING PROFILE
 export async function deleteLearningProfile(
   req: AuthRequest,
   res: Response
 ) {
   try {
-    const requestedId = Number(req.params.id);
-    const profileId = Number(req.params.profileId);
-    const userId = req.user?.id;
-
-    if (!userId) {
+    if (!req.user) {
       return res.status(401).json({
         message: "Unauthorized",
       });
     }
 
-    if (userId !== requestedId) {
+    const studentId = Number(req.params.id);
+    const profileId = Number(req.params.profileId);
+
+    if (req.user.id !== studentId) {
       return res.status(403).json({
         message: "Access denied.",
       });
     }
 
-    const existingProfile = await prisma.learningProfile.findFirst({
-      where: {
-        id: profileId,
-        studentId: userId,
-      },
-    });
+    const existingProfile =
+      await prisma.learningProfile.findFirst({
+        where: {
+          id: profileId,
+          studentId: studentId,
+        },
+      });
 
     if (!existingProfile) {
       return res.status(404).json({
